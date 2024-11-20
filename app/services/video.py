@@ -1,9 +1,10 @@
 import glob
+import os
 import random
 from typing import List
 
 from loguru import logger
-from moviepy.editor import *
+from moviepy import afx, VideoFileClip, AudioFileClip, ColorClip, CompositeVideoClip, concatenate_videoclips, TextClip, CompositeAudioClip, ImageClip
 from moviepy.video.tools.subtitles import SubtitlesClip
 from PIL import ImageFont
 
@@ -29,13 +30,13 @@ def get_bgm_file(bgm_type: str = "random", bgm_file: str = ""):
 
 
 def combine_videos(
-    combined_video_path: str,
-    video_paths: List[str],
-    audio_file: str,
-    video_aspect: VideoAspect = VideoAspect.portrait,
-    video_concat_mode: VideoConcatMode = VideoConcatMode.random,
-    max_clip_duration: int = 5,
-    threads: int = 2,
+        combined_video_path: str,
+        video_paths: List[str],
+        audio_file: str,
+        video_aspect: VideoAspect = VideoAspect.portrait,
+        video_concat_mode: VideoConcatMode = VideoConcatMode.random,
+        max_clip_duration: int = 5,
+        threads: int = 2,
 ) -> str:
     audio_clip = AudioFileClip(audio_file)
     audio_duration = audio_clip.duration
@@ -200,11 +201,11 @@ def wrap_text(text, max_width, font="Arial", fontsize=60):
 
 
 def generate_video(
-    video_path: str,
-    audio_path: str,
-    subtitle_path: str,
-    output_file: str,
-    params: VideoParams,
+        video_path: str,
+        audio_path: str,
+        subtitle_path: str,
+        output_file: str,
+        params: VideoParams,
 ):
     aspect = VideoAspect(params.video_aspect)
     video_width, video_height = aspect.to_resolution()
@@ -303,6 +304,7 @@ def generate_video(
 
 
 def preprocess_video(materials: List[MaterialInfo], clip_duration=4):
+    valid_materials = []
     for material in materials:
         if not material.url:
             continue
@@ -346,7 +348,8 @@ def preprocess_video(materials: List[MaterialInfo], clip_duration=4):
             del final_clip
             material.url = video_file
             logger.success(f"completed: {video_file}")
-    return materials
+            valid_materials.append(material)
+    return valid_materials
 
 
 if __name__ == "__main__":
